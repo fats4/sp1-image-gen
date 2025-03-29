@@ -307,9 +307,60 @@ input {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100px;
-  color: #3498db;
-  font-weight: bold;
+  min-height: 200px;
+  color: var(--secondary-color);
+  font-size: 1.2em;
+}
+
+.loading::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  margin-left: 15px;
+  border: 2px solid var(--secondary-color);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: loading 1s linear infinite;
+}
+
+@keyframes loading {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.proof-details {
+  background: rgba(129, 200, 235, 0.1);
+  border-radius: var(--border-radius);
+  padding: 15px;
+  margin: 20px 0;
+  text-align: left;
+}
+
+.proof-details h3 {
+  color: var(--secondary-color);
+  margin-bottom: 10px;
+}
+
+.proof-details p {
+  margin: 5px 0;
+  font-family: monospace;
+}
+
+#image-container {
+  margin: 20px 0;
+  min-height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#image-container img {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  border: 2px solid var(--primary-color);
 }
 
 .error {
@@ -428,4 +479,176 @@ input {
   .main-logo {
     max-width: 160px; /* Even smaller logo on very small screens */
   }
+}
+
+/* Proof Selection Dialog */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.proof-selection-dialog {
+    background-color: var(--card-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: var(--box-shadow);
+    color: var(--text-color);
+}
+
+.proof-option {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.proof-option h3 {
+    color: var(--secondary-color);
+    margin-bottom: 10px;
+}
+
+.cancel-btn {
+    background-color: transparent;
+    border: 1px solid var(--text-color);
+    color: var(--text-color);
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.simulation-notice {
+    color: var(--danger-color);
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 5px;
+    background-color: rgba(231, 76, 60, 0.1);
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* Proof Log Styling */
+.proof-log-entry {
+    margin: 5px 0;
+    padding: 5px;
+    border-bottom: 1px solid rgba(254, 34, 190, 0.2);
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.proof-log-entry.error {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.proof-log-entry.success {
+    color: #2ecc71;
+    font-weight: bold;
+    background-color: rgba(46, 204, 113, 0.1);
+    border-radius: 4px;
+    padding: 8px;
+}
+
+/* Proof Error Styling */
+.proof-error {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(231, 76, 60, 0.1);
+    border-radius: var(--border-radius);
+    text-align: center;
+}
+
+.proof-error h3 {
+    color: #e74c3c;
+    margin-bottom: 10px;
+}
+
+.proof-error p {
+    margin-bottom: 15px;
+}
+
+.panel-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: #1e293b;
+    border-top: 1px solid var(--primary-color);
+}
+
+.panel-footer button {
+    margin: 0 5px;
+}
+
+/* Proof Options Styling */
+.proof-options {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+    text-align: center;
+}
+
+.proof-options h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.proof-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.proof-buttons button {
+    min-width: 150px;
+}
+
+/* Proof Details Styling */
+.proof-details {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+    text-align: left;
+}
+
+.proof-details h3 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.proof-details p {
+    margin: 8px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.proof-details p:last-child {
+    border-bottom: none;
+}
+
+.close-btn {
+    color: var(--text-color);
+    font-size: 20px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: var(--primary-color);
 }

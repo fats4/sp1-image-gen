@@ -4,36 +4,45 @@
 sp1_zkvm::entrypoint!(main);
 
 use alloy_sol_types::{SolType, private::FixedBytes};
-use focus_proof_lib::{verify_focus_session, PublicValuesStruct};
+use image_gen_lib::{verify_image_generation, PublicValuesStruct};
 
 pub fn main() {
-    // Read input data
-    let start_time = sp1_zkvm::io::read::<u32>();
-    let end_time = sp1_zkvm::io::read::<u32>();
-    let planned_duration = sp1_zkvm::io::read::<u32>();
-    let task_hash = sp1_zkvm::io::read::<[u8; 32]>();
+    // Baca input data
+    let timestamp = sp1_zkvm::io::read::<u32>();
+    let image_size = sp1_zkvm::io::read::<u32>();
+    let width = sp1_zkvm::io::read::<u32>();
+    let height = sp1_zkvm::io::read::<u32>(); 
+    let image_hash = sp1_zkvm::io::read::<[u8; 32]>();
     
-    // Verification process
-    let is_valid = verify_focus_session(start_time, end_time, planned_duration);
+    // Konstanta
+    const MAX_IMAGE_SIZE: u32 = 10 * 1024 * 1024; // 10MB
     
-    // Create public values
+    // Verifikasi
+    let is_valid = verify_image_generation(
+        image_size,
+        width,
+        height,
+        MAX_IMAGE_SIZE
+    );
+    
+    // Buat public values
     let public_values = PublicValuesStruct {
-        startTime: start_time,
-        endTime: end_time,
-        duration: planned_duration,
-        completed: if is_valid { 1 } else { 0 },
-        taskHash: FixedBytes(task_hash), // Wrapped with FixedBytes
+        timestamp,
+        imageSize: image_size,
+        width,
+        height,
+        imageHash: FixedBytes(image_hash),
+        verified: if is_valid { 1 } else { 0 }
     };
     
-    // Debug outputs
-    println!("Focus session verification:");
-    println!("Start Time: {}", start_time);
-    println!("End Time: {}", end_time);
-    println!("Planned Duration: {}", planned_duration);
-    println!("Actual Duration: {}", end_time - start_time);
+    // Debug output
+    println!("Image Generation Verification:");
+    println!("Timestamp: {}", timestamp);
+    println!("Size: {} bytes", image_size);
+    println!("Dimensions: {}x{}", width, height);
     println!("Verification Result: {}", if is_valid { "SUCCESS" } else { "FAILED" });
     
-    // Encode results and provide as output
+    // Encode hasil
     let bytes = PublicValuesStruct::abi_encode(&public_values);
     sp1_zkvm::io::commit_slice(&bytes);
 }

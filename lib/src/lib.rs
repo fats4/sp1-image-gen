@@ -1,21 +1,38 @@
 use alloy_sol_types::sol;
 
 sol! {
-    /// Structure containing focus session results that can be easily deserialized by Solidity.
+    /// Structure untuk menyimpan data gambar dan hasil verifikasi
     struct PublicValuesStruct {
-        uint32 startTime;     // UNIX timestamp start time
-        uint32 endTime;       // UNIX timestamp end time  
-        uint32 duration;      // Planned duration (seconds)
-        uint32 completed;     // Completed? (1=yes, 0=no)
-        bytes32 taskHash;     // Task hash value
+        uint32 timestamp;     // Waktu pembuatan
+        uint32 imageSize;     // Ukuran gambar dalam bytes
+        uint32 width;         // Lebar gambar
+        uint32 height;       // Tinggi gambar
+        bytes32 imageHash;   // Hash dari gambar
+        uint32 verified;     // Status verifikasi (1=valid, 0=invalid)
     }
 }
 
-/// Verifies the focus session
-pub fn verify_focus_session(start_time: u32, end_time: u32, planned_duration: u32) -> bool {
-    // Calculate actual duration
-    let actual_duration = end_time - start_time;
+/// Verifikasi gambar yang dibuat
+pub fn verify_image_generation(
+    image_size: u32,
+    width: u32, 
+    height: u32,
+    max_size: u32
+) -> bool {
+    // Verifikasi ukuran dan dimensi
+    if image_size == 0 || width == 0 || height == 0 {
+        return false;
+    }
     
-    // Check if focused for at least the planned duration
-    actual_duration >= planned_duration
+    // Verifikasi ukuran maksimum
+    if image_size > max_size {
+        return false;
+    }
+    
+    // Verifikasi rasio aspek yang masuk akal
+    if width > 8192 || height > 8192 {
+        return false;
+    }
+
+    true
 }

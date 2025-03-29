@@ -1,5 +1,5 @@
 [package]
-name = "focus_proof_script"
+name = "image_gen_script"
 version = "0.1.0"
 edition = "2021"
 
@@ -14,7 +14,7 @@ path = "src/bin/vkey.rs"
 [dependencies]
 sp1-sdk = "4.0.0"
 alloy-sol-types = "0.7.7"
-focus_proof_lib = { path = "../lib" }
+image_gen_lib = { path = "../lib" }
 clap = { version = "4.3.0", features = ["derive"] }
 dotenv = "0.15.0"
 serde = { version = "1.0", features = ["derive"] }
