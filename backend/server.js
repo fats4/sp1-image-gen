@@ -11,7 +11,7 @@ const fs = require('fs');
 const axios = require('axios');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Important: Set this constant to false for real SP1 proofs
 const SIMULATION_MODE = false;
@@ -401,7 +401,7 @@ app.post('/api/generate-proof', async (req, res) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`SP1 Image Generator Server running at http://localhost:${PORT}`);
     console.log(`Simulation Mode: ${SIMULATION_MODE ? 'ENABLED' : 'DISABLED'}`);
     console.log(`Use the frontend to generate ${SIMULATION_MODE ? 'simulated' : 'real'} ZK proofs!`);
