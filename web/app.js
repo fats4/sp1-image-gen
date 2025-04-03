@@ -459,13 +459,19 @@ async function generateProof(simulation = false) {
             <div class="proof-details">
                 <h3>SP1 Proof Details</h3>
                 <p><strong>Prompt:</strong> ${prompt}</p>
-                <p><strong>Prompt Hash:</strong> ${data.proof.promptHash}</p>
-                <p><strong>Proof Hash:</strong> ${data.proof.proofHash}</p>
+                <p>
+                    <strong>Prompt Hash:</strong> 
+                    <span class="hash-value">${data.proof.promptHash || 'N/A'}</span>
+                </p>
+                <p>
+                    <strong>Proof Hash:</strong> 
+                    <span class="hash-value">${data.proof.proofHash}</span>
+                </p>
                 <p><strong>Timestamp:</strong> ${new Date(data.proof.timestamp * 1000).toLocaleString()}</p>
                 <p><strong>Dimensions:</strong> ${data.proof.dimensions}</p>
                 <p><strong>Size:</strong> ${formatBytes(data.proof.size)}</p>
                 <p><strong>Duration:</strong> ${duration} seconds</p>
-                <p><strong>Status:</strong> Verified ✓</p>
+                <p><strong>Status:</strong> <span class="retro-glow">Verified ✓</span></p>
             </div>
             <div class="proof-buttons">
                 <button id="view-proof-btn" class="secondary-btn">View Proof Details</button>

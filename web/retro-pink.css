@@ -1,0 +1,254 @@
+/* ===== PINK RETRO CODE THEME ===== */
+:root {
+  --primary-pink: #ff00ff;
+  --secondary-pink: #ff69b4;
+  --dark-bg: #0a0010;
+  --neon-blue: #00ffff;
+  --neon-purple: #9900ff;
+  --grid-color: rgba(255, 105, 180, 0.1);
+}
+
+/* Base styling */
+body {
+  background-color: var(--dark-bg);
+  background-image: 
+    linear-gradient(0deg, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 20px 20px;
+  color: white;
+  font-family: 'Courier New', monospace;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Retro text styling */
+h1, h2, h3, h4, h5, .title-text {
+  color: var(--primary-pink);
+  text-shadow: 0 0 5px var(--primary-pink), 0 0 10px var(--primary-pink);
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+  font-family: 'Press Start 2P', cursive;
+}
+
+/* Logo and header styling */
+.app-header, .logo-container {
+  text-align: center;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--secondary-pink);
+  box-shadow: 0 0 15px var(--primary-pink);
+}
+
+/* Button styling */
+button, .btn {
+  background: var(--dark-bg);
+  color: var(--primary-pink);
+  border: 2px solid var(--primary-pink);
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-family: 'Courier New', monospace;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 5px;
+  box-shadow: 0 0 5px var(--primary-pink);
+}
+
+button:hover, .btn:hover {
+  background: var(--primary-pink);
+  color: var(--dark-bg);
+  box-shadow: 0 0 15px var(--primary-pink), 0 0 20px var(--neon-purple);
+}
+
+/* Input fields */
+input, textarea, select {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--secondary-pink);
+  border-radius: 4px;
+  color: white;
+  padding: 8px;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 15px;
+  box-shadow: 0 0 5px var(--secondary-pink);
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-pink);
+  box-shadow: 0 0 10px var(--primary-pink);
+}
+
+/* Card and container styling */
+.card, .container, .screen {
+  background: rgba(10, 0, 16, 0.8);
+  border: 1px solid var(--secondary-pink);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 10px 0;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+}
+
+/* Image container with glow effect */
+#image-container img {
+  border: 2px solid var(--primary-pink);
+  border-radius: 8px;
+  max-width: 100%;
+  box-shadow: 0 0 20px var(--primary-pink);
+}
+
+/* Proof panel styling */
+#proof-panel {
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid var(--neon-purple);
+  border-radius: 8px;
+  box-shadow: 0 0 20px var(--neon-purple);
+}
+
+#proof-log {
+  font-family: 'Courier New', monospace;
+  color: var(--neon-blue);
+  background: rgba(0, 0, 10, 0.8);
+  padding: 10px;
+  border-radius: 4px;
+  height: 200px;
+  overflow-y: auto;
+  margin: 10px 0;
+  border: 1px solid var(--secondary-pink);
+}
+
+/* Add scanline effect */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.1) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* Loading animation */
+.loading {
+  color: var(--primary-pink);
+  text-align: center;
+  padding: 20px;
+  animation: pulse 1.5s infinite alternate;
+}
+
+@keyframes pulse {
+  from { opacity: 0.6; text-shadow: 0 0 5px var(--primary-pink); }
+  to { opacity: 1; text-shadow: 0 0 15px var(--primary-pink), 0 0 20px var(--neon-purple); }
+}
+
+/* Glitch effect for titles */
+.glitch-text {
+  position: relative;
+  animation: glitch 3s infinite;
+}
+
+@keyframes glitch {
+  0% { text-shadow: -2px 0 var(--neon-blue), 2px 0 var(--primary-pink); }
+  25% { text-shadow: 2px 0 var(--neon-blue), -2px 0 var(--primary-pink); }
+  50% { text-shadow: -1px 0 var(--neon-purple), 1px 0 var(--neon-blue); }
+  75% { text-shadow: 1px 1px var(--neon-purple), -1px -1px var(--primary-pink); }
+  100% { text-shadow: -2px 0 var(--neon-blue), 2px 0 var(--primary-pink); }
+}
+
+/* Result screen special styling */
+#result-screen {
+  background: radial-gradient(circle at center, rgba(25, 0, 25, 0.8) 0%, var(--dark-bg) 100%);
+}
+
+#proof-details {
+  border: 1px solid var(--primary-pink);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  box-shadow: 0 0 10px var(--primary-pink);
+}
+
+#proof-details dt {
+  color: var(--secondary-pink);
+  margin-top: 10px;
+}
+
+#proof-details dd {
+  color: white;
+  margin-left: 15px;
+  padding-left: 5px;
+  border-left: 2px solid var(--neon-blue);
+  margin-bottom: 10px;
+}
+
+/* Footer styling */
+footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 30px;
+  border-top: 1px solid var(--secondary-pink);
+  font-size: 0.8em;
+  color: var(--secondary-pink);
+}
+
+/* Add this class to elements you want to have the retro glow */
+.retro-glow {
+  text-shadow: 0 0 5px var(--primary-pink), 0 0 10px var(--primary-pink);
+}
+
+/* Handle long hash strings in proof details */
+.proof-details p {
+  word-break: break-all;
+  overflow-wrap: break-word;
+  margin-bottom: 12px;
+  max-width: 100%;
+  font-family: 'Courier New', monospace;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+/* Style for hash values specifically */
+.proof-details p strong {
+  display: block;
+  color: var(--secondary-pink);
+  margin-bottom: 4px;
+}
+
+/* Add scrolling for very long content */
+.proof-details {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--primary-pink);
+  border-radius: 8px;
+  box-shadow: 0 0 10px var(--primary-pink);
+  margin: 15px 0;
+  padding: 15px;
+}
+
+/* Make hash values highlighted and easier to read */
+.hash-value {
+  font-family: monospace;
+  letter-spacing: 0;
+  font-size: 0.9em;
+  overflow-x: auto;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px;
+  border-radius: 4px;
+  border-left: 3px solid var(--neon-blue);
+  display: block;
+  margin-top: 4px;
+} 
