@@ -44,10 +44,16 @@ app.post('/api/generate-image', async (req, res) => {
             });
         }
 
+        // Hitung prompt hash
+        const promptHash = crypto
+            .createHash('sha256')
+            .update(prompt)
+            .digest('hex');
+
         // Generate image
         const image = await generateImage(prompt, width, height);
         
-        // count image hash
+        // Hitung image hash
         const imageHash = crypto
             .createHash('sha256')
             .update(image)
@@ -72,10 +78,12 @@ app.post('/api/generate-image', async (req, res) => {
             verified: true
         };
 
-        // Send responds
+        // Simpan kedua hash untuk proses proof
         res.json({
             success: true,
             image: imageBase64,
+            promptHash: promptHash,
+            imageHash: imageHash,
             proof: proofResult
         });
 
@@ -217,14 +225,12 @@ async function generateImageProof(imageData) {
     console.log(`Dimensions: ${imageData.width}x${imageData.height}`);
     console.log(`Image Hash: ${imageData.imageHash}`);
     
-    const scriptPath = path.resolve(__dirname, '..', 'script');
+    const scriptPath = path.resolve(__dirname, '..', 'script', 'target', 'release', 'prove');
     
-    const command = `cd "${scriptPath}" && cargo run --bin prove --release -- --prove` +
-        ` --timestamp ${imageData.timestamp}` +
-        ` --image-size ${imageData.imageSize}` +
-        ` --width ${imageData.width}` +
-        ` --height ${imageData.height}` +
-        ` --image-hash ${imageData.imageHash}`;
+    const promptHash = imageData.promptHash || crypto.createHash('sha256').update('default-prompt').digest('hex');
+    console.log(`Prompt Hash (untuk penggunaan masa depan): ${promptHash}`);
+    
+    const command = `"${scriptPath}" --prove --timestamp ${imageData.timestamp} --image-size ${imageData.imageSize} --width ${imageData.width} --height ${imageData.height} --image-hash ${imageData.imageHash}`;
     
     console.log("Executing command:", command);
     
@@ -259,7 +265,8 @@ async function generateImageProof(imageData) {
                 dimensions: `${imageData.width}x${imageData.height}`,
                 size: imageData.imageSize,
                 verified: true,
-                duration: duration.toFixed(2)
+                duration: duration.toFixed(2),
+                promptHash: promptHash
             });
         });
     });

@@ -414,9 +414,11 @@ async function generateProof(simulation = false) {
         // If image is too large, resize first
         let processedImageData = base64Data;
         
-        // Send to server for proof generation
-        addProofLog(`Sending data to SP1 proof generator...`, proofLog);
+        // Tambahkan prompt data
+        const promptInput = document.getElementById('prompt-input');
+        const prompt = promptInput ? promptInput.value.trim() : '';
         
+        // Kirim promptHash bersama image data
         const response = await fetch('/api/generate-proof', {
             method: 'POST',
             headers: {
@@ -424,6 +426,10 @@ async function generateProof(simulation = false) {
             },
             body: JSON.stringify({
                 image: processedImageData,
+                promptHash: prompt ? await crypto.subtle.digest('SHA-256', new TextEncoder().encode(prompt)).then(
+                    hash => Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('')
+                ) : undefined,
+                prompt: prompt,
                 simulation: simulation
             })
         });
@@ -452,6 +458,8 @@ async function generateProof(simulation = false) {
         proofContainer.innerHTML = `
             <div class="proof-details">
                 <h3>SP1 Proof Details</h3>
+                <p><strong>Prompt:</strong> ${prompt}</p>
+                <p><strong>Prompt Hash:</strong> ${data.proof.promptHash}</p>
                 <p><strong>Proof Hash:</strong> ${data.proof.proofHash}</p>
                 <p><strong>Timestamp:</strong> ${new Date(data.proof.timestamp * 1000).toLocaleString()}</p>
                 <p><strong>Dimensions:</strong> ${data.proof.dimensions}</p>
@@ -572,6 +580,8 @@ function showProofDetails(proof) {
 function saveProofDetails(proof) {
     const proofText = `SP1 Proof Details
 ====================
+Prompt: ${proof.prompt}
+Prompt Hash: ${proof.promptHash}
 Proof Hash: ${proof.proofHash}
 Timestamp: ${new Date(proof.timestamp * 1000).toLocaleString()}
 Dimensions: ${proof.dimensions}

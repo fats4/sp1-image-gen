@@ -30,6 +30,10 @@ struct Args {
 
     #[clap(long, default_value = "0000000000000000000000000000000000000000000000000000000000000000")]
     image_hash: String,
+
+    /// Hash dari prompt yang digunakan
+    #[arg(long)]
+    pub prompt_hash: Option<String>,
 }
 
 fn main() {
@@ -54,6 +58,16 @@ fn main() {
         .try_into()
         .expect("Invalid image hash length");
 
+    // Parse prompt hash (langsung ke array)
+    let prompt_hash_bytes: [u8; 32] = if let Some(hash) = &args.prompt_hash {
+        hex::decode(hash)
+            .expect("Failed to decode prompt hash")
+            .try_into()
+            .expect("Invalid prompt hash length")
+    } else {
+        [0u8; 32] // Default hash
+    };
+
     // Prepare inputs
     let mut stdin = SP1Stdin::new();
     stdin.write(&args.timestamp);
@@ -61,6 +75,7 @@ fn main() {
     stdin.write(&args.width);
     stdin.write(&args.height);
     stdin.write(&image_hash_bytes);
+    stdin.write(&prompt_hash_bytes);
 
     if args.execute {
         // Run program without generating proof

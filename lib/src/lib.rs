@@ -6,9 +6,10 @@ sol! {
         uint32 timestamp;     // Waktu pembuatan
         uint32 imageSize;     // Ukuran gambar dalam bytes
         uint32 width;         // Lebar gambar
-        uint32 height;       // Tinggi gambar
-        bytes32 imageHash;   // Hash dari gambar
-        uint32 verified;     // Status verifikasi (1=valid, 0=invalid)
+        uint32 height;        // Tinggi gambar
+        bytes32 imageHash;    // Hash dari gambar
+        bytes32 promptHash;   // Hash dari prompt yang digunakan
+        uint32 verified;      // Status verifikasi (1=valid, 0=invalid)
     }
 }
 
