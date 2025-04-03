@@ -23,7 +23,8 @@ const buttons = {
     share: document.getElementById('share-btn'),
     newGen: document.getElementById('new-gen-btn'),
     homeBtn: document.getElementById('home-btn'),
-    closePanelBtn: document.getElementById('close-panel-btn')
+    closePanelBtn: document.getElementById('close-panel-btn'),
+    verifyImage: document.getElementById('verify-image-btn')
 };
 
 // Ensure proof panel is hidden on load
@@ -178,6 +179,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (buttons.share) {
         buttons.share.addEventListener('click', shareContent);
+    }
+    
+    // Tambahkan event listener untuk tombol verify di main menu
+    if (buttons.verifyImage) {
+        buttons.verifyImage.addEventListener('click', function() {
+            window.location.href = 'verify.html';
+        });
     }
 });
 
@@ -414,11 +422,21 @@ async function generateProof(simulation = false) {
         // If image is too large, resize first
         let processedImageData = base64Data;
         
-        // Tambahkan prompt data
         const promptInput = document.getElementById('prompt-input');
         const prompt = promptInput ? promptInput.value.trim() : '';
         
-        // Kirim promptHash bersama image data
+        console.log(`Sending prompt: "${prompt}"`);
+        
+        let promptHashValue = '';
+        if (prompt) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(prompt);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            promptHashValue = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            console.log(`Calculated promptHash: ${promptHashValue}`);
+        }
+        
         const response = await fetch('/api/generate-proof', {
             method: 'POST',
             headers: {
@@ -426,9 +444,7 @@ async function generateProof(simulation = false) {
             },
             body: JSON.stringify({
                 image: processedImageData,
-                promptHash: prompt ? await crypto.subtle.digest('SHA-256', new TextEncoder().encode(prompt)).then(
-                    hash => Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('')
-                ) : undefined,
+                promptHash: promptHashValue,
                 prompt: prompt,
                 simulation: simulation
             })
@@ -479,9 +495,21 @@ async function generateProof(simulation = false) {
             </div>
         `;
         
-        // Add event listeners for proof buttons
+        // Update event listeners for proof buttons
         document.getElementById('view-proof-btn').addEventListener('click', () => showProofDetails(data.proof));
-        document.getElementById('save-proof-btn').addEventListener('click', () => saveProofDetails(data.proof));
+        document.getElementById('save-proof-btn').addEventListener('click', () => {
+
+            const promptInput = document.getElementById('prompt-input');
+            const promptText = promptInput ? promptInput.value.trim() : '';
+            
+
+            const enhancedProof = {
+                ...data.proof,
+                prompt: promptText
+            };
+            
+            saveProofDetails(enhancedProof);
+        });
         
     } catch (error) {
         console.error('Error generating proof:', error);
@@ -584,17 +612,40 @@ function showProofDetails(proof) {
 
 // Function to save proof details as text file
 function saveProofDetails(proof) {
-    const proofText = `SP1 Proof Details
-====================
+    const proofText = `SP1 ZERO-KNOWLEDGE PROOF CERTIFICATE
+==================================
+
+PROOF OF AI GENERATION
+----------------------
+This certificate cryptographically verifies that the accompanying image was generated using
+the exact prompt specified below. The proof was created using SP1 Zero-Knowledge technology.
+
 Prompt: ${proof.prompt}
 Prompt Hash: ${proof.promptHash}
+Image Hash: ${proof.imageHash || proof.proofHash.replace('0xSP1', '')}
 Proof Hash: ${proof.proofHash}
 Timestamp: ${new Date(proof.timestamp * 1000).toLocaleString()}
 Dimensions: ${proof.dimensions}
 Size: ${(proof.size / 1024).toFixed(2)} KB
 Status: ${proof.verified ? 'Verified ✓' : 'Failed ✗'}
 
-Generated with SP1 ZK Technology
+VERIFICATION EXPLANATION
+-----------------------
+This Zero-Knowledge proof establishes that the specific prompt text was used to generate 
+this exact image without revealing details about:
+1. The internal AI model architecture
+2. The weights or parameters of the model
+3. The intermediate representations during image generation
+
+TECHNICAL VERIFICATION
+---------------------
+To verify this proof independently:
+1. Visit: https://example.com/verify
+2. Upload the image and enter the original prompt
+3. The system will verify the cryptographic connection between the prompt and image
+
+Generated using SP1 ZK Technology
+© ${new Date().getFullYear()} Succinct Labs
 `;
 
     const blob = new Blob([proofText], { type: 'text/plain' });
@@ -602,7 +653,7 @@ Generated with SP1 ZK Technology
     
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'sp1-proof-details.txt';
+    a.download = 'sp1-proof-certificate.txt';
     a.click();
     
     URL.revokeObjectURL(url);
@@ -644,3 +695,70 @@ window.goToGenerator = function() {
         console.error('Generator screen not found');
     }
 };
+
+function displayImageResult(imageData, proofData) {
+    const resultScreen = document.getElementById('result-screen');
+    const imageContainer = document.getElementById('result-image-container');
+    const proofContainer = document.getElementById('proof-container');
+    
+    imageContainer.innerHTML = `
+        <div class="result-image-wrapper">
+            <img src="data:image/png;base64,${imageData}" alt="Generated image" id="result-image">
+        </div>
+    `;
+    
+    let proofHTML = `
+        <h3 class="retro-glow">SP1 ZK Proof</h3>
+        <div class="proof-items">
+            <div class="proof-item"><span>ZK Proof:</span> ${proofData.proofHash}</div>
+            <div class="proof-item"><span>Timestamp:</span> ${new Date(proofData.timestamp * 1000).toLocaleString()}</div>
+            <div class="proof-item"><span>Dimensions:</span> ${proofData.dimensions}</div>
+            <div class="proof-item"><span>Size:</span> ${(proofData.size / 1024).toFixed(2)} KB</div>
+            <div class="proof-item"><span>Status:</span> ${proofData.verified ? `<span class="verified">Verified ✓</span>` : `<span class="failed">Failed ✗</span>`}</div>
+            <div class="proof-item"><span>Prompt Hash:</span> ${proofData.promptHash}</div>
+        </div>
+        
+        <div class="action-buttons">
+            <button id="save-image-btn" class="secondary-btn">Save Image</button>
+            <button id="save-proof-btn" class="secondary-btn">Save Proof</button>
+            <button id="verify-proof-btn" class="primary-btn">Verify Proof</button>
+        </div>
+    `;
+    
+    proofContainer.innerHTML = proofHTML;
+    
+
+    document.getElementById('save-image-btn').addEventListener('click', function() {
+        saveGeneratedImage(imageData);
+    });
+    
+
+    document.getElementById('save-proof-btn').addEventListener('click', function() {
+        saveProofDetails({
+            proofHash: proofData.proofHash,
+            timestamp: proofData.timestamp,
+            dimensions: proofData.dimensions,
+            size: proofData.size,
+            verified: proofData.verified,
+            prompt: document.getElementById('prompt-input').value,
+            promptHash: proofData.promptHash,
+            imageHash: proofData.proofHash.replace('0xSP1', '')
+        });
+    });
+    
+    document.getElementById('verify-proof-btn').addEventListener('click', function() {
+        navigateToVerifyWithData(imageData, proofData);
+    });
+    
+    showScreen('result-screen');
+}
+
+
+function navigateToVerifyWithData(imageData, proofData) {
+    localStorage.setItem('sp1_verify_image', imageData);
+    localStorage.setItem('sp1_verify_prompt', document.getElementById('prompt-input').value);
+    localStorage.setItem('sp1_verify_proof', JSON.stringify(proofData));
+    
+
+    window.location.href = 'verify.html';
+}

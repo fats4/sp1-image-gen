@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SP1 Proof Verifier</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="retro-pink.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div class="screen active">
+            <div class="content">
+                <h1 class="glitch-text">SP1 Proof Verifier</h1>
+                <p>Verify the authenticity of AI-generated images</p>
+                
+                <div class="generator-form">
+                    <div class="form-group">
+                        <label for="verify-prompt">Original Prompt:</label>
+                        <textarea id="verify-prompt" placeholder="Enter the prompt used to generate this image..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="file-input">Upload Image:</label>
+                        <div id="drop-area" class="drop-area">
+                            <p>Drag and drop image here or</p>
+                            <input type="file" id="file-input" accept="image/*">
+                            <label for="file-input" class="upload-btn">Upload Image</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proof-input">Proof Data (Optional):</label>
+                        <textarea id="proof-input" placeholder="Paste proof data if available..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="button-container">
+                    <button id="verify-btn" class="primary-btn">Verify Image</button>
+                    <button id="back-to-gen-btn" class="secondary-btn" onclick="window.location.href='index.html'">Back to Generator</button>
+                </div>
+                
+                <div id="verification-result" class="hidden">
+                    <h2 class="retro-glow">Verification Result</h2>
+                    <div class="result-content">
+                        <!-- Results will be displayed here -->
+                    </div>
+                </div>
+                
+                <div class="verification-explanation">
+                    <h3>How Verification Works</h3>
+                    <div class="verification-steps">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-text">Your prompt is converted to a unique cryptographic hash</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-text">The image file is also converted to a unique hash</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-text">Both hashes are checked against the verification database</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">4</div>
+                            <div class="step-text">If the hash combination exists, the image is verified as authentic</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">5</div>
+                            <div class="step-text">If not found, the image cannot be verified with that prompt</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Terminal Panel untuk melihat detail verifikasi -->
+    <div id="terminal-panel" class="hidden">
+        <div class="panel-header">
+            <h2>SP1 Verification Terminal</h2>
+            <a href="javascript:void(0)" class="close-btn" onclick="document.getElementById('terminal-panel').classList.add('hidden')">✖</a>
+        </div>
+        <div id="terminal-content" class="terminal-container">
+            <!-- Terminal output akan ditampilkan di sini -->
+        </div>
+    </div>
+    
+    <script src="verify.js"></script>
+</body>
+</html> 

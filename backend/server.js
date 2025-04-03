@@ -225,12 +225,31 @@ async function generateImageProof(imageData) {
     console.log(`Dimensions: ${imageData.width}x${imageData.height}`);
     console.log(`Image Hash: ${imageData.imageHash}`);
     
+    // Debug informasi prompt yang diterima dari frontend
+    console.log(`Received prompt: "${imageData.prompt}"`);
+    console.log(`Received promptHash from frontend: ${imageData.promptHash}`);
+
+    // Gunakan promptHash yang diterima, atau buat dari prompt langsung, atau gunakan default sebagai fallback
+    let promptHash;
+    if (imageData.promptHash) {
+        // Gunakan hash yang sudah dihitung di frontend
+        promptHash = imageData.promptHash;
+        console.log(`Using promptHash from frontend: ${promptHash}`);
+    } else if (imageData.prompt) {
+        // Hitung hash dari prompt yang diterima
+        promptHash = crypto.createHash('sha256').update(imageData.prompt).digest('hex');
+        console.log(`Calculated promptHash from received prompt: ${promptHash}`);
+    } else {
+        // Fallback ke default hanya jika tidak ada prompt sama sekali
+        promptHash = crypto.createHash('sha256').update('default-prompt').digest('hex');
+        console.log(`Using default promptHash: ${promptHash}`);
+    }
+
+    console.log(`Final Prompt Hash: ${promptHash}`);
+    
     const scriptPath = path.resolve(__dirname, '..', 'script', 'target', 'release', 'prove');
     
-    const promptHash = imageData.promptHash || crypto.createHash('sha256').update('default-prompt').digest('hex');
-    console.log(`Prompt Hash (untuk penggunaan masa depan): ${promptHash}`);
-    
-    const command = `"${scriptPath}" --prove --timestamp ${imageData.timestamp} --image-size ${imageData.imageSize} --width ${imageData.width} --height ${imageData.height} --image-hash ${imageData.imageHash}`;
+    const command = `"${scriptPath}" --prove --timestamp ${imageData.timestamp} --image-size ${imageData.imageSize} --width ${imageData.width} --height ${imageData.height} --image-hash ${imageData.imageHash} --prompt-hash ${promptHash}`;
     
     console.log("Executing command:", command);
     
@@ -258,6 +277,20 @@ async function generateImageProof(imageData) {
             
             console.log("Process STDOUT:", stdout);
             console.log("=== SP1 Proof Generation Completed Successfully ===");
+            
+            // Tambahkan kombinasi hash ke daftar valid setelah proof berhasil dibuat
+            if (!global.validCombinations) {
+                global.validCombinations = new Map();
+            }
+            
+            // Simpan kombinasi prompt hash dan image hash
+            global.validCombinations.set(`${promptHash}:${imageData.imageHash}`, {
+                timestamp: imageData.timestamp,
+                dimensions: `${imageData.width}x${imageData.height}`,
+                size: imageData.imageSize
+            });
+            
+            console.log(`Saved valid hash combination: promptHash=${promptHash}, imageHash=${imageData.imageHash}`);
             
             resolve({
                 proofHash: `0xSP1${imageData.imageHash.slice(0, 12)}`,
@@ -318,7 +351,11 @@ app.get('/api/test-image', async (req, res) => {
 app.post('/api/generate-proof', async (req, res) => {
     try {
         console.log("\n=== PROOF GENERATION REQUEST ===");
-        const { image, simulation } = req.body;
+        const { image, simulation, prompt, promptHash } = req.body;
+        
+        // Tambahkan log untuk debugging prompt dan promptHash
+        console.log(`Received prompt: "${prompt}"`);
+        console.log(`Received promptHash: ${promptHash}`);
         
         if (!image) {
             console.error("Missing image data in request");
@@ -382,7 +419,9 @@ app.post('/api/generate-proof', async (req, res) => {
                 imageSize: imageBuffer.length,
                 width: 512, 
                 height: 512, 
-                imageHash: imageHash
+                imageHash: imageHash,
+                prompt: prompt,
+                promptHash: promptHash
             });
             
             console.log("Proof generation successful:", proofResult);
@@ -406,6 +445,62 @@ app.post('/api/generate-proof', async (req, res) => {
         });
     }
 });
+
+// Endpoint untuk verifikasi kombinasi hash prompt dan gambar
+app.post('/api/verify-hash-combination', async (req, res) => {
+    const { promptHash, imageHash } = req.body;
+    
+    if (!promptHash || !imageHash) {
+        return res.status(400).json({
+            success: false,
+            error: "Missing prompt hash or image hash"
+        });
+    }
+    
+    try {
+        // Cek di database atau di memori untuk kombinasi valid
+        // Di sini kita bisa simpan kombinasi valid dalam Map untuk kecepatan
+        const isValid = await checkValidCombination(promptHash, imageHash);
+        
+        return res.json({
+            success: true,
+            valid: isValid
+        });
+    } catch (error) {
+        console.error('Error verifying hash combination:', error);
+        return res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+// Fungsi untuk mengecek kombinasi valid
+async function checkValidCombination(promptHash, imageHash) {
+    if (!global.validCombinations) {
+        global.validCombinations = new Map();
+        console.log("Warning: No valid hash combinations stored");
+        return false;
+    }
+    
+    const key = `${promptHash}:${imageHash}`;
+    const isValid = global.validCombinations.has(key);
+    
+    console.log(`Verification hash: ${isValid ? "VALID ✓" : "INVALID ✗"}`);
+    console.log(`- Prompt Hash: ${promptHash}`);
+    console.log(`- Image Hash: ${imageHash}`);
+    console.log(`- Stored combinations: ${global.validCombinations.size}`);
+    
+    // Tambahkan debug info untuk semua kombinasi yang tersimpan
+    if (!isValid && global.validCombinations.size > 0) {
+        console.log("Valid hash combinations stored:");
+        [...global.validCombinations.keys()].forEach((combo, index) => {
+            console.log(`  ${index+1}. ${combo}`);
+        });
+    }
+    
+    return isValid;
+}
 
 // Start the server
 app.listen(PORT, '0.0.0.0', () => {

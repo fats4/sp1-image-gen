@@ -32,8 +32,8 @@ struct Args {
     image_hash: String,
 
     /// Hash dari prompt yang digunakan
-    #[arg(long)]
-    pub prompt_hash: Option<String>,
+    #[clap(long, default_value = "")]
+    pub prompt_hash: String,
 }
 
 fn main() {
@@ -59,11 +59,17 @@ fn main() {
         .expect("Invalid image hash length");
 
     // Parse prompt hash (langsung ke array)
-    let prompt_hash_bytes: [u8; 32] = if let Some(hash) = &args.prompt_hash {
-        hex::decode(hash)
-            .expect("Failed to decode prompt hash")
-            .try_into()
-            .expect("Invalid prompt hash length")
+    let prompt_hash_bytes: [u8; 32] = if !args.prompt_hash.is_empty() {
+        let decoded = hex::decode(&args.prompt_hash)
+            .expect("Invalid hex for prompt hash");
+        
+        if decoded.len() != 32 {
+            panic!("Prompt hash harus tepat 32 byte (64 karakter hex)")
+        }
+        
+        let mut result = [0u8; 32];
+        result.copy_from_slice(&decoded);
+        result
     } else {
         [0u8; 32] // Default hash
     };
@@ -74,8 +80,8 @@ fn main() {
     stdin.write(&args.image_size);
     stdin.write(&args.width);
     stdin.write(&args.height);
+    stdin.write_slice(&prompt_hash_bytes);
     stdin.write(&image_hash_bytes);
-    stdin.write(&prompt_hash_bytes);
 
     if args.execute {
         // Run program without generating proof
